@@ -2,6 +2,8 @@
 <html>
     <head>
         <link rel="stylesheet" href="style.css" />
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.bundle.min.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js"></script>
     </head>
     <body>
         <script
@@ -16,15 +18,14 @@
                     onchange="readURL(this);"
                     accept="image/*"
                 />
+                                    
                 <div class="drag-text">
-                    <h3>Drag and drop a file or select add Image</h3>
+                    <h3>사진을 올려주세요. 인공지능이 당신의 체질을 분석해드립니다.</h3>
                 </div>
             </div>
+            <canvas id="myChart" width="400" height="400"></canvas>
             <div class="file-upload-content">
                 <img class="file-upload-image" id="face-image" src="#" alt="your image" />
-                <p id="resultMsg">
-                    
-                </p>
                 <div id="label-container"></div>
                 <div class="image-title-wrap">
                     <button type="button" onclick="removeUpload()" class="remove-image">
@@ -111,9 +112,55 @@
                 var image = document.getElementById('face-image');
                 const prediction = await model.predict(image, false);
                 prediction.sort((a, b) => parseFloat(b.probability) - parseFloat(a.probability));
-                
-                let resultMsg;
-                switch (prediction[0].className) {
+                let bodyName = [];
+                let bodyPercent = [];
+                for (let i = 0; i < maxPredictions; i++) {
+                    bodyName.push(changeMessage(prediction[i].className));
+                    bodyPercent.push(prediction[i].probability.toFixed(2));
+                }
+                var ctx = document.getElementById('myChart');
+                var myChart = new Chart(ctx, {
+
+                    type: 'bar',
+                    data: {
+                        labels: bodyName,
+                        datasets: [{
+                            label: '인공지능 분석결과',
+                            data: bodyPercent,
+                            backgroundColor: [
+                                'rgba(255, 99, 132, 0.2)',
+                                'rgba(54, 162, 235, 0.2)',
+                                'rgba(255, 206, 86, 0.2)',
+                                'rgba(75, 192, 192, 0.2)',
+                                'rgba(153, 102, 255, 0.2)',
+                                'rgba(255, 159, 64, 0.2)'
+                            ],
+                            borderColor: [
+                                'rgba(255, 99, 132, 1)',
+                                'rgba(54, 162, 235, 1)',
+                                'rgba(255, 206, 86, 1)',
+                                'rgba(75, 192, 192, 1)',
+                                'rgba(153, 102, 255, 1)',
+                                'rgba(255, 159, 64, 1)'
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: false,
+                        scales: {
+                            yAxes: [{
+                                ticks: {
+                                    beginAtZero: true
+                                }
+                            }]
+                        },
+                    }
+                });
+            }
+            
+            function changeMessage(englishName){
+                switch (englishName) {
                   case "bigPositive":
                     resultMsg= "태양인"
                     break;
@@ -127,12 +174,7 @@
                     resultMsg = "소음인"
                     break;
                 }
-                $("#resultMsg").html(resultMsg);
-                for (let i = 0; i < maxPredictions; i++) {
-                    const classPrediction =
-                        prediction[i].className + ': ' + prediction[i].probability.toFixed(2);
-                    labelContainer.childNodes[i].innerHTML = classPrediction;
-                }
+                return resultMsg;
             }
         </script>
         <script>
@@ -171,6 +213,9 @@
                 $('.image-upload-wrap').removeClass('image-dropping');
             });
         </script>
+<script>
+
+</script>
 
         <!-- Go to www.addthis.com/dashboard to customize your tools -->
         <div class="addthis_inline_share_toolbox"></div>
