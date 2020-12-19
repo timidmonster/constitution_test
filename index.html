@@ -116,7 +116,7 @@
                 let bodyPercent = [];
                 for (let i = 0; i < maxPredictions; i++) {
                     bodyName.push(changeMessage(prediction[i].className));
-                    bodyPercent.push(prediction[i].probability.toFixed(2));
+                    bodyPercent.push(prediction[i].probability.toFixed(2)*100);
                 }
                 var ctx = document.getElementById('myChart');
                 var myChart = new Chart(ctx, {
@@ -125,7 +125,6 @@
                     data: {
                         labels: bodyName,
                         datasets: [{
-                            label: '인공지능 분석결과',
                             data: bodyPercent,
                             backgroundColor: [
                                 'rgba(255, 99, 132, 0.2)',
@@ -147,7 +146,8 @@
                         }]
                     },
                     options: {
-                        responsive: false,
+                        responsive: true,
+                        legend: false,
                         scales: {
                             yAxes: [{
                                 ticks: {
